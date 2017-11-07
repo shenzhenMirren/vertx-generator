@@ -1,0 +1,57 @@
+可以识别占位符
+
+实体类名字  = {*className*}
+实体类名字首字母小写  = {*classNameFL*}
+{*//*} = 如果创建附加内容,则将该注释删除,反则保留
+
+包声明  = {*package*}
+引入其他包  = {*import*}
+router的名字 = {*routerName*}
+附加内容  = {*routerAdd*}
+
+获得数据总数方法名  =  {*funGetCount*}
+获得查询数据方法名  =  {*funSelectAll*}
+获得分页查询方法名  =  {*funSelectAllByPage*}
+获得通过对象查询方法名  =  {*funSelectObj*}
+获方通过id查询法名  =  {*funSelectId*}
+获方插入数据方法名   =  {*funInsert*}
+获方更新数据方法名   =  {*funUpdate*}
+获方删除数据方法名   =  {*funDelete*}
+获方附加内容方法名   =  {*funInsertBatch*}
+
+获得数据总数地址名  =  {*bsGetCount*}
+获得查询数据地址名  =  {*bsSelectAll*}
+获得分页查询地址名  =  {*bsSelectAllByPage*}
+获得通过对象查询地址名  =  {*bsSelectObj*}
+获方通过id查询地址名  = {*bsSelectId*}
+获方插入数数据地址名   =  {*bsInsert*}
+获方更新数据地址名   =  {*bsUpdate*}
+获方删除数据地址名    =  {*bsDelete*}
+获方附加内容地址名    =  {*bsInsertBatch*}
+
+bizVerticle的地址
+获得数据总数地址名  =  {*bizBsGetCount*}
+获得查询数据地址名  =  {*bizBsSelectAll*}
+获得分页查询地址名  =  {*bizBsSelectAllByPage*}
+获得通过对象查询地址名  =  {*bizBsSelectObj*}
+获方通过id查询地址名  = {*bizBsSelectId*}
+获方插入数数据地址名   =  {*bizBsInsert*}
+获方更新数据地址名   =  {*bizBsUpdate*}
+获方删除数据地址名    =  {*bizBsDelete*}
+获方附加内容地址名    =  {*bizBsInsertBatch*}
+
+
+daoVerticle的地址
+获得数据总数地址名  =  {*daoBsGetCount*}
+获得查询数据地址名  =  {*daoBsSelectAll*}
+获得分页查询地址名  =  {*daoBsSelectAllByPage*}
+获得通过对象查询地址名  =  {*daoBsSelectObj*}
+获方通过id查询地址名  = {*daoBsSelectId*}
+获方插入数数据地址名   =  {*daoBsInsert*}
+获方更新数据地址名   =  {*daoBsUpdate*}
+获方删除数据地址名    =  {*daoBsDelete*}
+获方附加内容地址名    =  {*daoBsInsertBatch*}
+
+
+
+

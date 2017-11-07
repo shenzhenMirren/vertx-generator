@@ -1,0 +1,586 @@
+{*package*}
+
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.Optional;
+
+import {*AssistPackage*}.SqlAssist;
+import {*AssistPackage*}.SqlWhereCondition;
+{*import*}
+import io.vertx.core.json.JsonArray;
+
+/**
+ * SQLServer的数据库操作语句
+ * 
+ * @author Mirren
+ *
+ */
+public abstract class AbstractSQL<T> {
+
+	/**
+	 * 表的名字
+	 * 
+	 * @return
+	 */
+	protected abstract String tableName();
+
+	/**
+	 * 表的主键
+	 * 
+	 * @return
+	 */
+	protected abstract String primaryId();
+
+	/**
+	 * 表的所有列名
+	 * 
+	 * @return
+	 */
+	protected abstract String columns();
+
+	/**
+	 * 表的所有列名与列名对应的值
+	 * 
+	 * @return
+	 */
+	protected abstract List<SqlPropertyValue<?>> propertyValue(T obj);
+
+	/**
+	 * 获得数据总行数<br>
+	 * 返回:sql or sql与params
+	 * 
+	 * @param assist
+	 * @return
+	 */
+	public SqlAndParams getCount(SqlAssist assist) {
+		StringBuilder sql = new StringBuilder(
+				MessageFormat.format("select count({0}) from {1}", primaryId(), tableName()));
+		JsonArray params = null;
+		if (assist != null) {
+			if (assist.getCondition() != null) {
+				for (SqlWhereCondition<?> where : assist.getCondition()) {
+					if (params == null) {
+						params = new JsonArray();
+						sql.append(" where " + where.getRequire());
+						if (where.getValue() != null) {
+							params.add(where.getValue());
+						}
+						if (where.getValues() != null) {
+							for (Object value : where.getValues()) {
+								params.add(value);
+							}
+						}
+						continue;
+					}
+					sql.append(where.getRequire());
+					if (where.getValue() != null) {
+						params.add(where.getValue());
+					}
+					if (where.getValues() != null) {
+						for (Object value : where.getValues()) {
+							params.add(value);
+						}
+					}
+				}
+			}
+		}
+		return new SqlAndParams(sql.toString(), params);
+	}
+
+	/**
+	 * 获得查询全部数据SQL语句与参数<br>
+	 * 返回:sql or sql与params
+	 * 
+	 * @param assist
+	 * @return
+	 */
+	public SqlAndParams selectAll(SqlAssist assist) {
+		// 如果Assist为空返回默认默认查询语句,反则根据Assist生成语句sql语句
+		if (assist == null) {
+			return new SqlAndParams(MessageFormat.format("select {0} from {1}", columns(), tableName()));
+		} else {
+			if (assist.getRowSize() == null) {
+				String distinct = Optional.ofNullable(assist.getDistinct()).map(dt -> dt).orElse("");// 去重语句
+				String column = Optional.ofNullable(assist.getResultColumn()).map(rc -> rc).orElse(columns());// 表的列名
+				JsonArray params = null;
+				StringBuilder condAndOrder = new StringBuilder("");
+				
+				if (assist.getCondition() != null) {
+					for (SqlWhereCondition<?> where : assist.getCondition()) {
+						if (params == null) {
+							params = new JsonArray();
+							condAndOrder.append(" where " + where.getRequire());
+							if (where.getValue() != null) {
+								params.add(where.getValue());
+							}
+							if (where.getValues() != null) {
+								for (Object value : where.getValues()) {
+									params.add(value);
+								}
+							}
+							continue;
+						}
+						condAndOrder.append(where.getRequire());
+						if (where.getValue() != null) {
+							params.add(where.getValue());
+						}
+						if (where.getValues() != null) {
+							for (Object value : where.getValues()) {
+								params.add(value);
+							}
+						}
+					}
+				}
+				if (assist.getOrder() != null) {
+					condAndOrder.append(assist.getOrder());
+				}
+				String sql = MessageFormat.format("select {0} {1} from {2} {3}", distinct, column, tableName(),
+						condAndOrder);
+				return new SqlAndParams(sql.toString(), params);
+			} else {
+				String distinct = Optional.ofNullable(assist.getDistinct()).map(dt -> dt).orElse("");// 去重语句
+				String order = Optional.ofNullable(assist.getOrder()).map(or -> or).orElse("order by " + primaryId());// 排序语句
+				StringBuilder cond = new StringBuilder("");// 条件语句
+				String limit;// 分页语句
+				JsonArray params = null;
+				if (assist.getCondition() != null) {
+					for (SqlWhereCondition<?> where : assist.getCondition()) {
+						if (params == null) {
+							params = new JsonArray();
+							cond.append(" where " + where.getRequire());
+							if (where.getValue() != null) {
+								params.add(where.getValue());
+							}
+							if (where.getValues() != null) {
+								for (Object value : where.getValues()) {
+									params.add(value);
+								}
+							}
+							continue;
+						}
+						cond.append(where.getRequire());
+						if (where.getValue() != null) {
+							params.add(where.getValue());
+						}
+						if (where.getValues() != null) {
+							for (Object value : where.getValues()) {
+								params.add(value);
+							}
+						}
+					}
+				}
+				if (params==null) {
+					params=new JsonArray();
+				}
+				if (assist.getStartRow() == null) {
+					limit = " where page <= ? ";
+					params.add(assist.getRowSize());
+				} else {
+					limit = " where page <= ? and page > ? ";
+					params.add(assist.getStartRow() + assist.getRowSize()).add(assist.getStartRow());
+				}
+				String column = Optional.ofNullable(assist.getResultColumn()).map(c -> c).orElse(columns());
+				String sql = MessageFormat.format(
+						"select * from ( select {0} ROW_NUMBER () over ({1}) AS page , {2} from {3} {4} ) result {5}",
+						distinct, order, column, tableName(), cond, limit);
+				return new SqlAndParams(sql, params);
+			}
+
+		}
+	}
+
+	/**
+	 * 获得分页查询的SQL语句与参数<br>
+	 * 先执行获得总行数,再执行查询数据,用于queryStream...<br>
+	 * 返回:sql or sql与params
+	 * 
+	 * @param assist
+	 *            查询帮助类
+	 * @param startRow
+	 *            从第几行开始取数据
+	 * @param rowSize
+	 *            每次取多少行数据
+	 * @return
+	 */
+	public SqlAndParams selectAllByPage(SqlAssist assist) {
+		SqlAndParams count = getCount(assist);// 获得数据总行数
+		SqlAndParams selectAll = selectAll(assist);// 获得数据
+		SqlAndParams result = new SqlAndParams();
+		result.addSqlAndParams(count, selectAll);
+		return result;
+	}
+
+	/**
+	 * 通过主键查询一个对象<br>
+	 * 返回:sql or sql与params
+	 * 
+	 * @param primaryKey
+	 *            主键的值
+	 * @return
+	 */
+	public <S> SqlAndParams selectById(S primaryValue) {
+		String sql = MessageFormat.format("select {0} from {1} where {2} = ? ", columns(), tableName(), primaryId());
+		JsonArray params = new JsonArray();
+		params.add(primaryValue);
+		return new SqlAndParams(sql, params);
+	}
+
+	/**
+	 * 通过主键查询一个对象<br>
+	 * 返回:sql or sql与params
+	 * 
+	 * @param primaryKey
+	 *            主键的值
+	 * @param resultColumns
+	 *            指定返回列 格式 [table.]列名 [as 类的属性名字],...
+	 * @return
+	 */
+	public <S> SqlAndParams selectById(S primaryValue, String resultColumns) {
+		String sql = MessageFormat.format("select {0} from {1} where {2} = ? ", resultColumns, tableName(),
+				primaryId());
+		JsonArray params = new JsonArray();
+		params.add(primaryValue);
+		return new SqlAndParams(sql, params);
+	}
+
+	/**
+	 * 通过一个对象进行查询,查询条件为对象属性不为null的值<br>
+	 * 返回:sql or sql与params, 如果对象为null将会返回空的SqlAndParams对象
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	public SqlAndParams selectByObj(T obj) {
+		StringBuilder sql = new StringBuilder(MessageFormat.format("select {0} from {1} ", columns(), tableName()));
+		JsonArray params = null;
+		for (SqlPropertyValue<?> pv : propertyValue(obj)) {
+			if (pv.getValue() != null) {
+				if (params == null) {
+					params = new JsonArray();
+					sql.append(MessageFormat.format("where {0} = ? ", pv.getName()));
+					params.add(pv.getValue());
+					continue;
+				}
+				sql.append(MessageFormat.format("and {0} = ? ", pv.getName()));
+				params.add(pv.getValue());
+			}
+		}
+		return new SqlAndParams(sql.toString(), params);
+	}
+
+	/**
+	 * 通过一个对象进行查询,查询条件为对象属性不为null<br>
+	 * 返回:sql or sql与params , 如果对象为null将会返回空的SqlAndParams对象
+	 * 
+	 * @param resultColumns
+	 *            指定返回列 格式 [table.]列名 [as 类的属性名字],...
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	public SqlAndParams selectByObj(T obj, String resultColumns) {
+		StringBuilder sql = new StringBuilder(MessageFormat.format("select {0} from {1} ", resultColumns, tableName()));
+		JsonArray params = null;
+		for (SqlPropertyValue<?> pv : propertyValue(obj)) {
+			if (pv.getValue() != null) {
+				if (params == null) {
+					params = new JsonArray();
+					sql.append(MessageFormat.format("where {0} = ? ", pv.getName()));
+					params.add(pv.getValue());
+					continue;
+				}
+				sql.append(MessageFormat.format("and {0} = ? ", pv.getName()));
+				params.add(pv.getValue());
+			}
+		}
+		return new SqlAndParams(sql.toString(), params);
+	}
+
+	/**
+	 * 插入一个对象包括null值<br>
+	 * 返回:sql or sql与params
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	public SqlAndParams insertAll(T obj) {
+		JsonArray params = null;
+		StringBuilder tempColumn = null;
+		StringBuilder tempValues = null;
+		for (SqlPropertyValue<?> pv : propertyValue(obj)) {
+			if (tempColumn == null) {
+				tempColumn = new StringBuilder(pv.getName());
+				tempValues = new StringBuilder("?");
+				params = new JsonArray();
+			} else {
+				tempColumn.append("," + pv.getName());
+				tempValues.append(",?");
+			}
+			if (pv.getValue() != null) {
+				params.add(pv.getValue());
+			} else {
+				params.addNull();
+			}
+		}
+		String sql = MessageFormat.format("insert into {0} ({1}) values ({2}) ", tableName(), tempColumn, tempValues);
+		return new SqlAndParams(sql.toString(), params);
+	}
+
+	/**
+	 * 插入一个对象中不为null的属性<br>
+	 * 返回:sql or sql与params
+	 * 
+	 * @param user
+	 * @return
+	 */
+	public SqlAndParams insertNonEnpty(T obj) {
+		JsonArray params = null;
+		StringBuilder tempColumn = null;
+		StringBuilder tempValues = null;
+		for (SqlPropertyValue<?> pv : propertyValue(obj)) {
+			if (pv.getValue() != null) {
+				if (tempColumn == null) {
+					tempColumn = new StringBuilder(pv.getName());
+					tempValues = new StringBuilder("?");
+					params = new JsonArray();
+				} else {
+					tempColumn.append("," + pv.getName());
+					tempValues.append(",?");
+				}
+				params.add(pv.getValue());
+			}
+		}
+		String sql = MessageFormat.format("insert into {0} ({1}) values ({2}) ", tableName(), tempColumn, tempValues);
+		return new SqlAndParams(sql, params);
+	}
+
+	/**
+	 * 更新一个对象中所有的属性包括null值,条件为对象中的主键值<br>
+	 * 返回:sql or sql与params, 如果对象中的id为null将会返回空的SqlAndParams对象
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	public SqlAndParams updateAllById(T obj) {
+		JsonArray params = null;
+		StringBuilder tempColumn = null;
+		Object tempIdValue = null;
+		for (SqlPropertyValue<?> pv : propertyValue(obj)) {
+			if (pv.getName().equals(primaryId())) {
+				tempIdValue = pv.getValue();
+				continue;
+			}
+			if (tempColumn == null) {
+				params = new JsonArray();
+				tempColumn = new StringBuilder(pv.getName() + " = ? ");
+			} else {
+				tempColumn.append(", " + pv.getName() + " = ? ");
+			}
+			if (pv.getValue() != null) {
+				params.add(pv.getValue());
+			} else {
+				params.addNull();
+			}
+		}
+		if (tempIdValue == null) {
+			return new SqlAndParams();
+		}
+		params.add(tempIdValue);
+		String sql = MessageFormat.format("update {0} set {1} where {2} = ? ", tableName(), tempColumn, primaryId(),
+				tempIdValue);
+		return new SqlAndParams(sql, params);
+	}
+
+	/**
+	 * 更新对象中所有的属性包括null值,条件为SqlAssist对象<br>
+	 * 返回:sql or sql与params
+	 * 
+	 * @param obj
+	 * @param assist
+	 * @return
+	 */
+	public SqlAndParams updateAllByAssist(T obj, SqlAssist assist) {
+		JsonArray params = null;
+		StringBuilder tempColumn = null;
+		for (SqlPropertyValue<?> pv : propertyValue(obj)) {
+			if (tempColumn == null) {
+				params = new JsonArray();
+				tempColumn = new StringBuilder(pv.getName() + " = ? ");
+			} else {
+				tempColumn.append(", " + pv.getName() + " = ? ");
+			}
+			if (pv.getValue() != null) {
+				params.add(pv.getValue());
+			} else {
+				params.addNull();
+			}
+		}
+		StringBuilder whereStr = null;
+		for (SqlWhereCondition<?> where : assist.getCondition()) {
+			if (whereStr == null) {
+				whereStr = new StringBuilder(" where " + where.getRequire());
+				if (where.getValue() != null) {
+					params.add(where.getValue());
+				}
+				if (where.getValues() != null) {
+					for (Object value : where.getValues()) {
+						params.add(value);
+					}
+				}
+				continue;
+			}
+			whereStr.append(where.getRequire());
+			if (where.getValue() != null) {
+				params.add(where.getValue());
+			}
+			if (where.getValues() != null) {
+				for (Object value : where.getValues()) {
+					params.add(value);
+				}
+			}
+		}
+		String sql = MessageFormat.format("update {0} set {1} {2}", tableName(), tempColumn,
+				whereStr == null ? "" : whereStr);
+		return new SqlAndParams(sql.toString(), params);
+	}
+
+	/**
+	 * 将对象中属性值不为null的进行更新,条件为对象中的主键值<br>
+	 * 返回:sql or sql与params , 如果对象为null将会返回空的SqlAndParams对象
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	public SqlAndParams updateNonEmptyById(T obj) {
+		JsonArray params = null;
+		StringBuilder tempColumn = null;
+		Object tempIdValue = null;
+		for (SqlPropertyValue<?> pv : propertyValue(obj)) {
+			if (pv.getName().equals(primaryId())) {
+				tempIdValue = pv.getValue();
+				continue;
+			}
+			if (pv.getValue() != null) {
+				if (tempColumn == null) {
+					params = new JsonArray();
+					tempColumn = new StringBuilder(pv.getName() + " = ? ");
+				} else {
+					tempColumn.append(", " + pv.getName() + " = ? ");
+				}
+				params.add(pv.getValue());
+			}
+		}
+		if (tempColumn == null || tempIdValue == null) {
+			return new SqlAndParams();
+		}
+		params.add(tempIdValue);
+		String sql = MessageFormat.format("update {0} set {1} where {2} = ? ", tableName(), tempColumn, primaryId(),
+				tempIdValue);
+		return new SqlAndParams(sql, params);
+	}
+
+	/**
+	 * 将对象中属性值不为null的进行更新,条件为SqlAssist对象<br>
+	 * 返回:sql or sql与params , 如果assist为null将会返回空的SqlAndParams对象
+	 * 
+	 * @param obj
+	 * @param assist
+	 * @return
+	 */
+	public SqlAndParams updateNonEmptyByAssist(T obj, SqlAssist assist) {
+		JsonArray params = null;
+		StringBuilder tempColumn = null;
+		for (SqlPropertyValue<?> pv : propertyValue(obj)) {
+			if (pv.getValue() != null) {
+				if (tempColumn == null) {
+					params = new JsonArray();
+					tempColumn = new StringBuilder(pv.getName() + " = ? ");
+				} else {
+					tempColumn.append(", " + pv.getName() + " = ? ");
+				}
+				params.add(pv.getValue());
+			}
+		}
+		StringBuilder whereStr = null;
+		if (assist.getCondition() != null) {
+			for (SqlWhereCondition<?> where : assist.getCondition()) {
+				if (whereStr == null) {
+					whereStr = new StringBuilder(" where " + where.getRequire());
+					if (where.getValue() != null) {
+						params.add(where.getValue());
+					}
+					if (where.getValues() != null) {
+						for (Object value : where.getValues()) {
+							params.add(value);
+						}
+					}
+					continue;
+				}
+				whereStr.append(where.getRequire());
+				if (where.getValue() != null) {
+					params.add(where.getValue());
+				}
+				if (where.getValues() != null) {
+					for (Object value : where.getValues()) {
+						params.add(value);
+					}
+				}
+			}
+		}
+		String sql = MessageFormat.format("update {0} set {1} {2}", tableName(), tempColumn,
+				whereStr == null ? "" : whereStr);
+		return new SqlAndParams(sql.toString(), params);
+	}
+
+	/**
+	 * 通过主键值删除对应的数据行<br>
+	 * 返回:sql or sql与params
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public <S> SqlAndParams deleteById(S primaryValue) {
+		String sql = MessageFormat.format("delete from {0} where {1} = ? ", tableName(), primaryId());
+		JsonArray params = new JsonArray();
+		params.add(primaryValue);
+		return new SqlAndParams(sql, params);
+	}
+
+	/**
+	 * 通过SqlAssist条件集删除对应的数据行<br>
+	 * 返回:sql or sql与params , 如果assist为null将会返回空的SqlAndParams对象
+	 * 
+	 * @param assist
+	 * @return
+	 */
+	public SqlAndParams deleteByAssist(SqlAssist assist) {
+		StringBuilder whereStr = null;
+		JsonArray params = new JsonArray();
+		for (SqlWhereCondition<?> where : assist.getCondition()) {
+			if (whereStr == null) {
+				whereStr = new StringBuilder(" where " + where.getRequire());
+				if (where.getValue() != null) {
+					params.add(where.getValue());
+				}
+				if (where.getValues() != null) {
+					for (Object value : where.getValues()) {
+						params.add(value);
+					}
+				}
+				continue;
+			}
+			whereStr.append(where.getRequire());
+			if (where.getValue() != null) {
+				params.add(where.getValue());
+			}
+			if (where.getValues() != null) {
+				for (Object value : where.getValues()) {
+					params.add(value);
+				}
+			}
+		}
+		String sql = MessageFormat.format("delete from {0} {1}", tableName(), whereStr);
+		return new SqlAndParams(sql, params);
+	}
+
+}
