@@ -3,6 +3,14 @@
 vertx-generator是一款基于javafx8开发的一款图形界面的vert.x逆向工程;<br/>
 该工具支持Oracle , SqlServer , MySQL , PostgreSql数据库的逆向生成;<br/>
 生成采用模板生成的方式,用户自定义模板,工具根据模板进行生成<br/>
+
+# 执行方法
+执行方式在项目根目录执行mvn jfx:jar进行打包;jar打包为jar包native打包为系统安装软件;<br/>
+```html
+mvn jfx:jar
+编译后进入target/jfx/app/ 双击执行VertX-Generator.jar  或者 java -jar VertX-Generator.jar
+```
+
 # 软件使用说明
 [vertx-generator的使用帮助文档](https://github.com/shenzhenMirren/vertx-generator-doc/)<br/>
 
