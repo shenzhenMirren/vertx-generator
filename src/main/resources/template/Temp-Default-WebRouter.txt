@@ -19,15 +19,15 @@ public class {*routerName*} {
 	 * 启动{*className*}类相关地址服务
 	 */
 	public void initRoute() {
-		router.get("{*bsGetCount*}").blockingHandler(this::{*funGetCount*});
-		router.get("{*bsSelectAll*}").blockingHandler(this::{*funSelectAll*});
-		router.get("{*bsSelectAllByPage*}").blockingHandler(this::{*funSelectAllByPage*});
-		router.get("{*bsSelectObj*}").blockingHandler(this::{*funSelectObj*});
-		router.get("{*bsSelectId*}").blockingHandler(this::{*funSelectId*});
-		router.post("{*bsInsert*}").blockingHandler(this::{*funInsert*});
-		router.put("{*bsUpdate*}").blockingHandler(this::{*funUpdate*});
-		router.delete("{*bsDelete*}").blockingHandler(this::{*funDelete*});
-		{*//*}router.post("{*bsInsertBatch*}").blockingHandler(this::{*funInsertBatch*});
+		router.get("{*bsGetCount*}").handler(this::{*funGetCount*});
+		router.get("{*bsSelectAll*}").handler(this::{*funSelectAll*});
+		router.get("{*bsSelectAllByPage*}").handler(this::{*funSelectAllByPage*});
+		router.get("{*bsSelectObj*}").handler(this::{*funSelectObj*});
+		router.get("{*bsSelectId*}").handler(this::{*funSelectId*});
+		router.post("{*bsInsert*}").handler(this::{*funInsert*});
+		router.put("{*bsUpdate*}").handler(this::{*funUpdate*});
+		router.delete("{*bsDelete*}").handler(this::{*funDelete*});
+		{*//*}router.post("{*bsInsertBatch*}").handler(this::{*funInsertBatch*});
 	}
 
 	/**
