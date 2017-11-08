@@ -15,6 +15,9 @@ mvn jfx:jar
 # 软件使用说明
 [vertx-generator的使用帮助文档](https://github.com/shenzhenMirren/vertx-generator-doc/)<br/>
 
+# 模板仓库
+[vertx-generator的模板参考](https://github.com/shenzhenMirren/vertx-generator-template)<br/>
+
 # 工具主页<br/>
 ![index](https://raw.githubusercontent.com/shenzhenMirren/vertx-generator-doc/master/resource/images/index.png)
 
