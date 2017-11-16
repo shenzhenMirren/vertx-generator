@@ -9,6 +9,15 @@
 biz的名字 = {*bizName*}
 附加内容  = {*bizAdd*}
 
+//主键  效果为.getXXX("X");
+json属性 主键 = {*jsonPrimary*}
+json属性主键等于null = 	{*jsonPrimaryEqNull*}		==null
+json属性主键不等于null = {*jsonPrimaryNeqNull*}		!=null
+
+实体类属性 主键 = {*clzPrimary*}
+实体类属性主键等于null = 	{*clzPrimaryEqNull*}		==null
+实体类属性主键不等于null = {*clzPrimaryNeqNull*}		!=null
+
 
 //对象或者参数实例名使用body,比如JsonObject body...
 json属性 = {*jsonAttr*} 			示例:body.getXXX("id")多个值以,号隔开

@@ -251,6 +251,13 @@ public class CreateFileUtil {
 		rep.add(StrUtil.asStrArray("{*daoBsInsertBatch*}", daoBsInsertBatch));
 		// 装载非空与长度的配置属性
 		BizCondition condtion = getBizCondtion(config, attr);
+		rep.add(StrUtil.asStrArray("{*jsonPrimary*}", condtion.getJsonPrimary()));
+		rep.add(StrUtil.asStrArray("{*jsonPrimaryEqNull*}", condtion.getJsonPrimaryEqNull()));
+		rep.add(StrUtil.asStrArray("{*jsonPrimaryNeqNull*}", condtion.getJsonPrimaryNeqNull()));
+		rep.add(StrUtil.asStrArray("{*clzPrimary*}", condtion.getClzPrimary()));
+		rep.add(StrUtil.asStrArray("{*clzPrimaryEqNull*}", condtion.getClzPrimaryEqNull()));
+		rep.add(StrUtil.asStrArray("{*clzPrimaryNeqNull*}", condtion.getClzPrimaryNeqNull()));
+
 		rep.add(StrUtil.asStrArray("{*jsonAttr*}", condtion.getJsonAttr()));
 		rep.add(StrUtil.asStrArray("{*jsonPeqNull*}", condtion.getJsonPeqNull()));
 		rep.add(StrUtil.asStrArray("{*jsonPneqNull*}", condtion.getJsonPneqNull()));
@@ -908,6 +915,13 @@ public class CreateFileUtil {
 	 */
 	private static BizCondition getBizCondtion(HistoryConfig config, EntityAttribute attr) {
 		List<AttributeCVF> attrs = attr.getAttrs();
+		String jsonPrimary = "";
+		String jsonPrimaryEqNull = "";
+		String jsonPrimaryNeqNull = "";
+		String clzPrimary = "";
+		String clzPrimaryEqNull = "";
+		String clzPrimaryNeqNull = "";
+
 		StringBuilder jsonAttr = new StringBuilder();
 		StringBuilder jsonPeqNull = new StringBuilder();
 		StringBuilder jsonPneqNull = new StringBuilder();
@@ -928,6 +942,19 @@ public class CreateFileUtil {
 
 		for (int i = 0; i < attrs.size(); i++) {
 			AttributeCVF cvf = attrs.get(i);
+			if (cvf.getPropertyName().equals(attr.getPrimaryKey())) {
+				// 获得主键属性
+				String temp = getJsonGetType("", cvf.getJavaTypeValue());
+				String value = MessageFormat.format(temp, cvf.getPropertyName());
+				jsonPrimary = value;
+				jsonPrimaryEqNull = value + " == null";
+				jsonPrimaryNeqNull = value + " != null";
+				String clzGet = getClzGet("", cvf.getPropertyName());
+				clzPrimary = clzGet;
+				clzPrimaryEqNull = clzGet + " == null";
+				clzPrimaryNeqNull = clzGet + " != null";
+			}
+
 			String jsonType = getJsonGetType("body", cvf.getJavaTypeValue());
 			String jAttr = MessageFormat.format(jsonType, cvf.getPropertyName());
 			String cAttr = getClzGet("body", cvf.getPropertyName());
@@ -986,7 +1013,8 @@ public class CreateFileUtil {
 				}
 			}
 		}
-		BizCondition bizCondition = new BizCondition(jsonAttr, jsonPeqNull, jsonPneqNull, jsonLenLt, jsonLenLte,
+		BizCondition bizCondition = new BizCondition(jsonPrimary, jsonPrimaryEqNull, jsonPrimaryNeqNull, clzPrimary,
+				clzPrimaryEqNull, clzPrimaryNeqNull, jsonAttr, jsonPeqNull, jsonPneqNull, jsonLenLt, jsonLenLte,
 				jsonLenGt, jsonLenGte, clzAttr, clzPeqNull, clzPneqNull, clzLenLt, clzLenLte, clzLenGt, clzLenGte);
 		return bizCondition;
 	}

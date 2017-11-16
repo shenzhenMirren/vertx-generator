@@ -9,7 +9,9 @@ public enum FXMLPage {
 	SET_BIZ_ATTRIBUTE("FXML/SetBizAttribute.fxml"),
 	SET_ROUTER_ATTRIBUTE("FXML/SetRouterAttribute.fxml"),
 	SET_SQL_ATTRIBUTE("FXML/SetSQLAttribute.fxml"),
-	SET_TEMPLATE("FXML/SetTemplates.fxml");
+	SET_TEMPLATE("FXML/SetTemplates.fxml"),
+	ABOUT("FXML/About.fxml"),
+	;
 
 	private String fxml;
 

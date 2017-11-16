@@ -7,6 +7,15 @@ package com.szmirren.models;
  *
  */
 public class BizCondition {
+
+	private String jsonPrimary;// json属性 主键 既json.getXXX("x");
+	private String jsonPrimaryEqNull;// json属性主键等于null;
+	private String jsonPrimaryNeqNull;// json属性主键不等于null;
+
+	private String clzPrimary;// 实体类属性 主键;
+	private String clzPrimaryEqNull;// 实体类属性主键等于null;
+	private String clzPrimaryNeqNull;// 实体类属性主键不等于null ;
+
 	private String jsonAttr;// json属性既json.getXXX("x");
 	private String jsonPeqNull;// json属性等于null
 	private String jsonPneqNull;// json属性不等于null
@@ -27,10 +36,17 @@ public class BizCondition {
 		super();
 	}
 
-	public BizCondition(String jsonAttr, String jsonPeqNull, String jsonPneqNull, String jsonLenLt, String jsonLenLte,
-			String jsonLenGt, String jsonLenGte, String clzAttr, String clzPeqNull, String clzPneqNull, String clzLenLt,
-			String clzLenLte, String clzLenGt, String clzLenGte) {
+	public BizCondition(String jsonPrimary, String jsonPrimaryEqNull, String jsonPrimaryNeqNull, String clzPrimary,
+			String clzPrimaryEqNull, String clzPrimaryNeqNull, String jsonAttr, String jsonPeqNull, String jsonPneqNull,
+			String jsonLenLt, String jsonLenLte, String jsonLenGt, String jsonLenGte, String clzAttr, String clzPeqNull,
+			String clzPneqNull, String clzLenLt, String clzLenLte, String clzLenGt, String clzLenGte) {
 		super();
+		this.jsonPrimary = jsonPrimary;
+		this.jsonPrimaryEqNull = jsonPrimaryEqNull;
+		this.jsonPrimaryNeqNull = jsonPrimaryNeqNull;
+		this.clzPrimary = clzPrimary;
+		this.clzPrimaryEqNull = clzPrimaryEqNull;
+		this.clzPrimaryNeqNull = clzPrimaryNeqNull;
 		this.jsonAttr = jsonAttr;
 		this.jsonPeqNull = jsonPeqNull;
 		this.jsonPneqNull = jsonPneqNull;
@@ -47,11 +63,18 @@ public class BizCondition {
 		this.clzLenGte = clzLenGte;
 	}
 
-	public BizCondition(StringBuilder jsonAttr, StringBuilder jsonPeqNull, StringBuilder jsonPneqNull,
-			StringBuilder jsonLenLt, StringBuilder jsonLenLte, StringBuilder jsonLenGt, StringBuilder jsonLenGte,
-			StringBuilder clzAttr, StringBuilder clzPeqNull, StringBuilder clzPneqNull, StringBuilder clzLenLt,
-			StringBuilder clzLenLte, StringBuilder clzLenGt, StringBuilder clzLenGte) {
+	public BizCondition(String jsonPrimary, String jsonPrimaryEqNull, String jsonPrimaryNeqNull, String clzPrimary,
+			String clzPrimaryEqNull, String clzPrimaryNeqNull, StringBuilder jsonAttr, StringBuilder jsonPeqNull,
+			StringBuilder jsonPneqNull, StringBuilder jsonLenLt, StringBuilder jsonLenLte, StringBuilder jsonLenGt,
+			StringBuilder jsonLenGte, StringBuilder clzAttr, StringBuilder clzPeqNull, StringBuilder clzPneqNull,
+			StringBuilder clzLenLt, StringBuilder clzLenLte, StringBuilder clzLenGt, StringBuilder clzLenGte) {
 		super();
+		this.jsonPrimary = jsonPrimary;
+		this.jsonPrimaryEqNull = jsonPrimaryEqNull;
+		this.jsonPrimaryNeqNull = jsonPrimaryNeqNull;
+		this.clzPrimary = clzPrimary;
+		this.clzPrimaryEqNull = clzPrimaryEqNull;
+		this.clzPrimaryNeqNull = clzPrimaryNeqNull;
 		this.jsonAttr = jsonAttr.toString();
 		this.jsonPeqNull = jsonPeqNull.toString();
 		this.jsonPneqNull = jsonPneqNull.toString();
@@ -66,6 +89,54 @@ public class BizCondition {
 		this.clzLenLte = clzLenLte.toString();
 		this.clzLenGt = clzLenGt.toString();
 		this.clzLenGte = clzLenGte.toString();
+	}
+
+	public String getJsonPrimary() {
+		return jsonPrimary;
+	}
+
+	public void setJsonPrimary(String jsonPrimary) {
+		this.jsonPrimary = jsonPrimary;
+	}
+
+	public String getJsonPrimaryEqNull() {
+		return jsonPrimaryEqNull;
+	}
+
+	public void setJsonPrimaryEqNull(String jsonPrimaryEqNull) {
+		this.jsonPrimaryEqNull = jsonPrimaryEqNull;
+	}
+
+	public String getJsonPrimaryNeqNull() {
+		return jsonPrimaryNeqNull;
+	}
+
+	public void setJsonPrimaryNeqNull(String jsonPrimaryNeqNull) {
+		this.jsonPrimaryNeqNull = jsonPrimaryNeqNull;
+	}
+
+	public String getClzPrimary() {
+		return clzPrimary;
+	}
+
+	public void setClzPrimary(String clzPrimary) {
+		this.clzPrimary = clzPrimary;
+	}
+
+	public String getClzPrimaryEqNull() {
+		return clzPrimaryEqNull;
+	}
+
+	public void setClzPrimaryEqNull(String clzPrimaryEqNull) {
+		this.clzPrimaryEqNull = clzPrimaryEqNull;
+	}
+
+	public String getClzPrimaryNeqNull() {
+		return clzPrimaryNeqNull;
+	}
+
+	public void setClzPrimaryNeqNull(String clzPrimaryNeqNull) {
+		this.clzPrimaryNeqNull = clzPrimaryNeqNull;
 	}
 
 	public String getJsonAttr() {

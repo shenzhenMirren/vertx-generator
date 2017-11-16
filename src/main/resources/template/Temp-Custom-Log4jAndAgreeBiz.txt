@@ -1,0 +1,212 @@
+{*package*}
+
+{*import*}
+
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import org.apache.log4j.Logger;
+public class {*bizName*} extends AbstractVerticle {
+	private Logger LOG = Logger.getLogger(this.getClass());
+	@Override
+	public void start() throws Exception {
+		super.start();
+		vertx.eventBus().consumer("{*bsGetCount*}", this::{*funGetCount*});
+		vertx.eventBus().consumer("{*bsSelectAll*}", this::{*funSelectAll*});
+		vertx.eventBus().consumer("{*bsSelectAllByPage*}", this::{*funSelectAllByPage*});
+		vertx.eventBus().consumer("{*bsSelectObj*}", this::{*funSelectObj*});
+		vertx.eventBus().consumer("{*bsSelectId*}", this::{*funSelectId*});
+		vertx.eventBus().consumer("{*bsInsert*}", this::{*funInsert*});
+		vertx.eventBus().consumer("{*bsUpdate*}", this::{*funUpdate*});
+		vertx.eventBus().consumer("{*bsDelete*}", this::{*funDelete*});
+	    {*//*}vertx.eventBus().consumer("{*bsInsertBatch*}", this::{*funInsertBatch*});
+	}
+
+	/**
+	 * 获得{*className*}数据总行数
+	 * 
+	 * @param msg
+	 */
+	public void {*funGetCount*}(Message<JsonObject> msg) {
+		// TODO 业务处理
+		// SqlAssist assist = new SqlAssist();
+		vertx.eventBus().<Long>send("{*daoBsGetCount*}", null, res -> {
+			if (res.succeeded()) {
+				Long result = res.result().body();
+				msg.reply(result);
+				LOG.debug("执行获取数据总行数-->结果:" + result);
+			} else {
+				LOG.debug("执行获取数据总行数-->失败:" + res.cause());
+				msg.fail(500, "操作失败!");
+			}
+		});
+	}
+
+	/**
+	 * 获得所有{*className*}
+	 * 
+	 * @param msg
+	 */
+	public void {*funSelectAll*}(Message<JsonObject> msg) {
+		// TODO 业务处理
+		// SqlAssist assist = new SqlAssist();
+		vertx.eventBus().<JsonArray>send("{*daoBsSelectAll*}", null, res -> {
+			if (res.succeeded()) {
+				JsonArray result = res.result().body();
+				msg.reply(result);
+				LOG.debug("执行查询所有数据-->结果[数量]:" + result.size());
+			} else {
+				msg.fail(500, "操作失败!");
+				LOG.debug("执行查询所有数据-->失败:" + res.cause());
+			}
+		});
+	}
+
+	/**
+	 * 获得所有{*className*}
+	 * 
+	 * @param msg
+	 */
+	public void {*funSelectAllByPage*}(Message<JsonObject> msg) {
+		// TODO 业务处理,
+		SqlAssist assist = new SqlAssist();
+		assist.setStartRow(0).setRowSize(20);
+		String message = assist.toJsonStr();
+		vertx.eventBus().<JsonObject>send("{*daoBsSelectAllByPage*}", message, res -> {
+			if (res.succeeded()) {
+				JsonObject result = res.result().body();
+				msg.reply(result);
+				LOG.debug("执行分页查询数据-->成功!");
+			} else {
+				msg.fail(500, "操作失败!");
+				LOG.debug("执行分页查询数据-->失败:" + res.cause());
+			}
+		});
+	}
+
+	/**
+	 * 获得通过{*className*}查询{*className*},可用于登录等
+	 * 
+	 * @param msg
+	 */
+	public void {*funSelectObj*}(Message<JsonObject> msg) {
+		// TODO 业务处理
+		vertx.eventBus().<JsonArray>send("{*daoBsSelectObj*}", msg.body(), res -> {
+			if (res.succeeded()) {
+				JsonArray body = res.result().body();
+				JsonObject result = body.size() > 0 ? body.getJsonObject(0) : new JsonObject();
+				msg.reply(result);
+				LOG.debug("执行通过对象查询数据-->成功!");
+			} else {
+				msg.fail(500, "操作失败!");
+				LOG.debug("执行通过对象查询数据-->失败:" + res.cause());
+			}
+		});
+	}
+
+	/**
+	 * 通过主键查询出{*className*}
+	 * 
+	 * @param msg
+	 */
+	public void {*funSelectId*}(Message<JsonObject> msg) {
+		// TODO 业务处理
+		if (msg.body() == null || msg.body(){*jsonPrimary*} == null) {
+			msg.fail(412, "不能为空对象");
+			LOG.debug("执行通过主键查询-->失败:主键不能为空");
+		}else {
+			vertx.eventBus().<JsonObject>send("{*daoBsSelectId*}", msg.body(){*jsonPrimary*}, res -> {
+				if (res.succeeded()) {
+					JsonObject result = res.result().body();
+					msg.reply(result);
+					LOG.debug("执行通过主键查询-->成功!");
+				} else {
+					msg.fail(500, "操作失败!");
+					LOG.debug("执行通过主键查询-->失败" + res.cause());
+				}
+			});
+		}
+	}
+
+	/**
+	 * 将{*className*}保存到数据库
+	 * 
+	 * @param msg
+	 */
+	public void {*funInsert*}(Message<JsonObject> msg) {
+		// TODO 业务处理
+		JsonObject body = msg.body();
+		if (body == null) {
+			msg.fail(412, "对象不能为空");
+			LOG.debug("执行添加一个数据-->失败:对象不能为空");
+		} else if ({*jsonPeqNull*}) {
+			msg.fail(413, "参数长度不符合");
+			LOG.debug("执行添加一个查询-->失败:参数长度不符合");
+		} else {
+			vertx.eventBus().<Integer>send("{*daoBsInsert*}", body, res -> {
+				if (res.succeeded()) {
+					Integer result = res.result().body();
+					msg.reply(result);
+					LOG.debug("执行添加一个数据-->结果:" + result);
+				} else {
+					msg.fail(500, "操作失败!");
+					LOG.debug("执行添加一个数据失败-->失败:" + res.cause());
+				}
+			});
+		}
+	}
+
+	/**
+	 * 将通过主键更新{*className*}
+	 * 
+	 * @param msg
+	 */
+	public void {*funUpdate*}(Message<JsonObject> msg) {
+		// TODO 可以在这里做点事情比如判断,id不能为空
+		JsonObject body = msg.body();
+		if (body == null) {
+			msg.fail(412, "对象不能为空");
+			LOG.debug("执行添加一个数据-->失败:对象不能为空");
+		} else {
+			vertx.eventBus().<Integer>send("{*daoBsUpdate*}", body, res -> {
+				if (res.succeeded()) {
+					Integer result = res.result().body();
+					msg.reply(result);
+					LOG.debug("执行通过主键更新数据-->结果:" + result);
+				} else {
+					msg.fail(500, "操作失败!");
+					LOG.debug("执行通过主键更新数据-->失败:" + res.cause());
+				}
+			});
+		}
+	}
+
+	/**
+	 * 通过主键将{*className*}删除
+	 * 
+	 * @param msg
+	 */
+	public void {*funDelete*}(Message<JsonObject> msg) {
+		// TODO 可以在这里做点事情比如判断,id不能为空
+		JsonObject body = msg.body();
+		if (body == null || body{*jsonPrimaryEqNull*}) {
+			msg.fail(412, "主键不能为空");
+			LOG.debug("执行删除数据-->失败:主键不能为空");
+		} else {
+			vertx.eventBus().<Integer>send("{*daoBsDelete*}", body{*jsonPrimary*}, res -> {
+				if (res.succeeded()) {
+					Integer result = res.result().body();
+					msg.reply(result);
+					LOG.debug("执行删除数据-->结果:" + result);
+				} else {
+					msg.fail(500, "操作失败!");
+					LOG.debug("执行删除数据-->失败:" + res.cause());
+				}
+			});
+		}
+	}
+
+{*bizAdd*}
+
+}

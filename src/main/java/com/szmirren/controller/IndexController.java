@@ -90,6 +90,8 @@ public class IndexController extends BaseController {
 	private Label lblSetTemplate;// 模板选择
 	@FXML
 	private Label lblInstructions;// 使用说明
+	@FXML
+	private Label lblAbout;// 关于
 
 	@FXML
 	private TreeView<String> tvDataBase;// 数据树列表
@@ -214,10 +216,8 @@ public class IndexController extends BaseController {
 		lblInstructionsImage.setFitWidth(40);
 		lblInstructions.setGraphic(lblInstructionsImage);
 		lblInstructions.setOnMouseClicked(enent -> {
-			TextInputDialog dialog = new TextInputDialog("http://szmirren.com");
-			dialog.setTitle("使用说明");
-			dialog.setContentText("使用说明请访问网址:");
-			dialog.show();
+			AboutController controller = (AboutController) loadFXMLPage("使用说明", FXMLPage.ABOUT, false);
+			controller.showDialogStage();
 		});
 
 		cboCodeFormat.getItems().addAll("UTF-8", "GBK", "UTF-16", "UTF-32", "GB2312", "GB18030", "ISO-8859-1");
