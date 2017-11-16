@@ -73,7 +73,7 @@ public class StrUtil {
 	 * @return
 	 */
 	public static String fristToUpCaseLaterToLoCase(String str) {
-		if (str != null && str.length() > 1) {
+		if (str != null && str.length() > 0) {
 			str = (str.substring(0, 1).toUpperCase()) + (str.substring(1).toLowerCase());
 		}
 		return str;
@@ -86,7 +86,7 @@ public class StrUtil {
 	 * @return
 	 */
 	public static String fristToLoCaseLaterToUpCase(String str) {
-		if (str != null && str.length() > 1) {
+		if (str != null && str.length() > 0) {
 			str = (str.substring(0, 1).toLowerCase()) + (str.substring(1).toUpperCase());
 
 		}
@@ -100,7 +100,7 @@ public class StrUtil {
 	 * @return
 	 */
 	public static String fristToUpCase(String str) {
-		if (str != null && str.length() > 1) {
+		if (str != null && str.length() > 0) {
 			str = str.substring(0, 1).toUpperCase() + str.substring(1);
 		}
 		return str;
@@ -113,7 +113,7 @@ public class StrUtil {
 	 * @return
 	 */
 	public static String fristToLoCase(String str) {
-		if (str != null && str.length() > 1) {
+		if (str != null && str.length() > 0) {
 			str = str.substring(0, 1).toLowerCase() + str.substring(1);
 		}
 		return str;
