@@ -7,7 +7,7 @@ import {*AbstractSQLPackage*}.AbstractSQL;
 import {*AbstractSQLPackage*}.SqlPropertyValue;
 {*import*}
 
-public class {*sqlName*} extends AbstractSQL<JsonObject> {
+public class {*sqlName*} extends AbstractSQL<{*className*}> {
 	@Override
 	protected String tableName() {
 		return "{*tableName*}";
@@ -24,9 +24,9 @@ public class {*sqlName*} extends AbstractSQL<JsonObject> {
 	}
 
 	@Override
-	protected List<SqlPropertyValue<?>> propertyValue(JsonObject obj) {
+	protected List<SqlPropertyValue<?>> propertyValue({*className*} obj) {
 		List<SqlPropertyValue<?>> result = new ArrayList<>();
-		{*SqlPropertyValue*}
+		{*SqlPropertyValueByClz*}
 		return result;
 	}
 	

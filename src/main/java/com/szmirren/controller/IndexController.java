@@ -170,20 +170,21 @@ public class IndexController extends BaseController {
 
 	@FXML
 	private Label lblRunCreateAll;// 提示文字进度条
+
 	private String runCreateText = "正在生成 {t} ...";// 提示文字的默认文字
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		LOG.debug("初始化首页...");
+
 		// 初始化图标连接与配置信息
 		ImageView lblConnImage = new ImageView("image/computer.png");
 		lblConnImage.setFitHeight(40);
 		lblConnImage.setFitWidth(40);
 		lblConnection.setGraphic(lblConnImage);
 		lblConnection.setOnMouseClicked(event -> {
-			ConnectionController controller = (ConnectionController) loadFXMLPage("新建数据库连接", FXMLPage.CONNECTION,
-					false);
+			ConnectionController controller = (ConnectionController) loadFXMLPage("新建数据库连接", FXMLPage.CONNECTION, false);
 			controller.setIndexController(this);
 			controller.showDialogStage();
 
@@ -193,8 +194,7 @@ public class IndexController extends BaseController {
 		lblConfImage.setFitWidth(40);
 		lblConfig.setGraphic(lblConfImage);
 		lblConfig.setOnMouseClicked(enent -> {
-			HistoryConfigController controller = (HistoryConfigController) loadFXMLPage("配置信息管理",
-					FXMLPage.HISTORY_CONFIG, false);
+			HistoryConfigController controller = (HistoryConfigController) loadFXMLPage("配置信息管理", FXMLPage.HISTORY_CONFIG, false);
 			controller.setIndexController(this);
 			controller.showDialogStage();
 		});
@@ -204,8 +204,7 @@ public class IndexController extends BaseController {
 		lblSetTempImage.setFitWidth(40);
 		lblSetTemplate.setGraphic(lblSetTempImage);
 		lblSetTemplate.setOnMouseClicked(enent -> {
-			SetTemplateController controller = (SetTemplateController) loadFXMLPage("模板管理", FXMLPage.SET_TEMPLATE,
-					false);
+			SetTemplateController controller = (SetTemplateController) loadFXMLPage("模板管理", FXMLPage.SET_TEMPLATE, false);
 			controller.setIndexController(this);
 			controller.showDialogStage();
 			controller.init();
@@ -269,8 +268,7 @@ public class IndexController extends BaseController {
 						updateOfDatabaseConfig = (DatabaseConfig) treeItem.getGraphic().getUserData();
 						if (updateOfDatabaseConfig != null) {
 							LOG.debug("打开修改数据库连接窗口...");
-							UpdateConnection controller = (UpdateConnection) loadFXMLPage("修改数据库连接",
-									FXMLPage.UPDATE_CONNECTION, false);
+							UpdateConnection controller = (UpdateConnection) loadFXMLPage("修改数据库连接", FXMLPage.UPDATE_CONNECTION, false);
 							controller.setIndexController(this);
 							controller.init();
 							controller.showDialogStage();
@@ -520,8 +518,7 @@ public class IndexController extends BaseController {
 			AlertUtil.showWarnAlert("请先选择数据库表!打开左侧数据库双击表名便可加载...");
 			return;
 		}
-		SetAttributeController controller = (SetAttributeController) loadFXMLPage("修改实体类属性", FXMLPage.SET_ATTRIBUTE,
-				false);
+		SetAttributeController controller = (SetAttributeController) loadFXMLPage("修改实体类属性", FXMLPage.SET_ATTRIBUTE, false);
 		controller.setIndexController(this);
 		controller.showDialogStage();
 		controller.init();
@@ -533,8 +530,7 @@ public class IndexController extends BaseController {
 	 * @param event
 	 */
 	public void onSetDao(ActionEvent event) {
-		SetDaoAttributeController controller = (SetDaoAttributeController) loadFXMLPage("dao层设置",
-				FXMLPage.SET_DAO_ATTRIBUTE, false);
+		SetDaoAttributeController controller = (SetDaoAttributeController) loadFXMLPage("dao层设置", FXMLPage.SET_DAO_ATTRIBUTE, false);
 		controller.setIndexController(this);
 		controller.showDialogStage();
 		controller.init();
@@ -546,8 +542,8 @@ public class IndexController extends BaseController {
 	 * @param event
 	 */
 	public void onSetBiz(ActionEvent event) {
-		SetBizAttributeController controller = (SetBizAttributeController) loadFXMLPage("biz层设置,biz包括BizRouter",
-				FXMLPage.SET_BIZ_ATTRIBUTE, false);
+		SetBizAttributeController controller = (SetBizAttributeController) loadFXMLPage("biz层设置,biz包括BizRouter", FXMLPage.SET_BIZ_ATTRIBUTE,
+				false);
 		controller.setIndexController(this);
 		controller.showDialogStage();
 		controller.init();
@@ -559,8 +555,7 @@ public class IndexController extends BaseController {
 	 * @param event
 	 */
 	public void onSetRouter(ActionEvent event) {
-		SetRouterAttributeController controller = (SetRouterAttributeController) loadFXMLPage("Router设置",
-				FXMLPage.SET_ROUTER_ATTRIBUTE, false);
+		SetRouterAttributeController controller = (SetRouterAttributeController) loadFXMLPage("Router设置", FXMLPage.SET_ROUTER_ATTRIBUTE, false);
 		controller.setIndexController(this);
 		controller.showDialogStage();
 		controller.init();
@@ -572,8 +567,7 @@ public class IndexController extends BaseController {
 	 * @param event
 	 */
 	public void onSetSQL(ActionEvent event) {
-		SetSQLAttributeController controller = (SetSQLAttributeController) loadFXMLPage("SQL设置",
-				FXMLPage.SET_SQL_ATTRIBUTE, false);
+		SetSQLAttributeController controller = (SetSQLAttributeController) loadFXMLPage("SQL设置", FXMLPage.SET_SQL_ATTRIBUTE, false);
 		controller.setIndexController(this);
 		controller.showDialogStage();
 		controller.init();
@@ -588,8 +582,8 @@ public class IndexController extends BaseController {
 	public void saveConfig(ActionEvent event) {
 		LOG.debug("执行保存配置文件...");
 		// 检查是否类名是否存在占位符
-		boolean indexOf = StrUtil.indexOf("{c}", txtEntityName.getText(), txtDaoName.getText(), txtBizName.getText(),
-				txtRouterName.getText(), txtSqlName.getText());
+		boolean indexOf = StrUtil.indexOf("{c}", txtEntityName.getText(), txtDaoName.getText(), txtBizName.getText(), txtRouterName.getText(),
+				txtSqlName.getText());
 		if (!indexOf) {
 			AlertUtil.showWarnAlert("所以类名里面必须包含用于替换表名的占位符: {c}");
 			return;
@@ -727,13 +721,16 @@ public class IndexController extends BaseController {
 		String jOName = CommonName.JSON_OBJECT_NAME.getValue();
 
 		// 引入json包
-		entityAttribute.setImportPackages(Arrays.asList(new String[] { jUPackg, String.join(".", jOPackg, jOName) }));
+		entityAttribute.setImportPackages(Arrays.asList(new String[]{jUPackg, String.join(".", jOPackg, jOName)}));
+
+		// TODO
 
 		HistoryConfig historyConfig = getHistoryConfig();
 		historyConfig.setDaoName(daoNamePlace.replace("{c}", StrUtil.unlineToPascal(tableName)));
 		historyConfig.setBizName(bizNamePlace.replace("{c}", StrUtil.unlineToPascal(tableName)));
 		historyConfig.setRouterName(routerNamePlace.replace("{c}", StrUtil.unlineToPascal(tableName)));
 		historyConfig.setSqlName(sqlNamePlace.replace("{c}", StrUtil.unlineToPascal(tableName)));
+		historyConfig.setEntityName(entityNamePlace.replace("{c}", StrUtil.unlineToPascal(tableName)));
 		historyConfig.setDbType(dbConfig.getDbType());
 		CreateFileUtil.CreateEntity(historyConfig, entityAttribute);
 		CreateFileUtil.createAbstractSQL(historyConfig);
@@ -783,9 +780,9 @@ public class IndexController extends BaseController {
 		boolean isCreateBiz = chkCreateBiz.isSelected();
 		boolean isCreateRouter = chkCreateRouter.isSelected();
 		boolean isJsonToCamel = chkJsonKeyIsCamel.isSelected();
-		HistoryConfig config = new HistoryConfig(name, projectPath, entityPackage, entityName, daoPackage, daoName,
-				bizPackage, bizName, routerPackage, routerName, sqlPackage, sqlName, assistPackage, abstractSqlPackage,
-				sqlParamsPackage, codeFormat, isCreateEntity, isCreateDao, isCreateBiz, isCreateRouter, isJsonToCamel);
+		HistoryConfig config = new HistoryConfig(name, projectPath, entityPackage, entityName, daoPackage, daoName, bizPackage, bizName,
+				routerPackage, routerName, sqlPackage, sqlName, assistPackage, abstractSqlPackage, sqlParamsPackage, codeFormat, isCreateEntity,
+				isCreateDao, isCreateBiz, isCreateRouter, isJsonToCamel);
 		if (selectedDatabaseConfig != null) {
 			config.setDbType(selectedDatabaseConfig.getDbType());
 		}
@@ -914,7 +911,7 @@ public class IndexController extends BaseController {
 		String jOName = CommonName.JSON_OBJECT_NAME.getValue();
 
 		// 引入json包
-		ctEntityAttribute.setImportPackages(Arrays.asList(new String[] { jUPackg, String.join(".", jOPackg, jOName) }));
+		ctEntityAttribute.setImportPackages(Arrays.asList(new String[]{jUPackg, String.join(".", jOPackg, jOName)}));
 		LOG.debug("获取表与类属性-->成功!!!");
 		return ctEntityAttribute;
 	}
@@ -924,8 +921,7 @@ public class IndexController extends BaseController {
 			return classConfig;
 		}
 		try {
-			ClassConfig config = Optional.ofNullable(ConfigUtil.getClassConfig("default")).map(conf -> conf)
-					.orElse(new ClassConfig());
+			ClassConfig config = Optional.ofNullable(ConfigUtil.getClassConfig("default")).map(conf -> conf).orElse(new ClassConfig());
 			return config;
 		} catch (Exception e) {
 			LOG.error("获取entity配置文件-->失败:" + e);
@@ -946,8 +942,7 @@ public class IndexController extends BaseController {
 		}
 		try {
 			LOG.debug("执行获取dao配置文件...");
-			DaoConfig result = Optional.ofNullable(ConfigUtil.getDaoConfig("default")).map(conf -> conf)
-					.orElse(new DaoConfig());
+			DaoConfig result = Optional.ofNullable(ConfigUtil.getDaoConfig("default")).map(conf -> conf).orElse(new DaoConfig());
 			LOG.debug("执行获取dao配置文件-->成功!");
 			return result;
 		} catch (Exception e) {
@@ -968,8 +963,7 @@ public class IndexController extends BaseController {
 		}
 		try {
 			LOG.debug("执行获取配biz置文件...");
-			BizConfig result = Optional.ofNullable(ConfigUtil.getBizConfig("default")).map(conf -> conf)
-					.orElse(new BizConfig());
+			BizConfig result = Optional.ofNullable(ConfigUtil.getBizConfig("default")).map(conf -> conf).orElse(new BizConfig());
 			LOG.debug("执行获取biz配置文件-->成功!");
 			return result;
 		} catch (Exception e) {
@@ -990,8 +984,7 @@ public class IndexController extends BaseController {
 		}
 		try {
 			LOG.debug("执行获取router配置文件...");
-			RouterConfig result = Optional.ofNullable(ConfigUtil.getRouterConfig("default")).map(conf -> conf)
-					.orElse(new RouterConfig());
+			RouterConfig result = Optional.ofNullable(ConfigUtil.getRouterConfig("default")).map(conf -> conf).orElse(new RouterConfig());
 			LOG.debug("执行获取router配置文件-->成功!");
 			return result;
 		} catch (Exception e) {
@@ -1012,8 +1005,7 @@ public class IndexController extends BaseController {
 		}
 		try {
 			LOG.debug("执行获取SQL配置文件...");
-			SQLConfig result = Optional.ofNullable(ConfigUtil.getSQLConfig("default")).map(conf -> conf)
-					.orElse(new SQLConfig());
+			SQLConfig result = Optional.ofNullable(ConfigUtil.getSQLConfig("default")).map(conf -> conf).orElse(new SQLConfig());
 			LOG.debug("执行获取SQL配置文件-->成功!");
 			return result;
 		} catch (Exception e) {
@@ -1029,8 +1021,7 @@ public class IndexController extends BaseController {
 		}
 		try {
 			LOG.debug("执行获取SQL配置文件...");
-			TemplateConfig result = Optional.ofNullable(ConfigUtil.getTemplateConfig("default")).map(conf -> conf)
-					.orElse(new TemplateConfig());
+			TemplateConfig result = Optional.ofNullable(ConfigUtil.getTemplateConfig("default")).map(conf -> conf).orElse(new TemplateConfig());
 			LOG.debug("执行获取SQL配置文件-->成功!");
 			return result;
 		} catch (Exception e) {

@@ -35,7 +35,7 @@ public class {*routerName*} {
 	 * 
 	 * @param rct
 	 */
-	private void {*funGetCount*}(RoutingContext rct) {
+	public void {*funGetCount*}(RoutingContext rct) {
 		// TODO 修改生成模板或者做点什么
 		rct.vertx().eventBus().<Long>send("{*bizBsGetCount*}", null, reply -> {
 			if (reply.succeeded()) {

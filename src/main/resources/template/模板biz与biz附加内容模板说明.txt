@@ -1,13 +1,16 @@
 可以识别占位符
 
 实体类名字  = {*className*}
+JsonObject名字 = {*JsonObject*}
 实体类名字首字母小写  = {*classNameFL*}
 {*//*} = 如果创建附加内容,则将该注释删除,反则保留
 
 包声明  = {*package*}
 引入其他包  = {*import*}
 biz的名字 = {*bizName*}
+dao的名字 = {*daoName*}
 附加内容  = {*bizAdd*}
+
 
 //主键  效果为.getXXX("X");
 json属性 主键 = {*jsonPrimary*}
@@ -28,7 +31,7 @@ json属性长度小于等于列长度 = {*jsonLenLte*} 		<=
 json属性长度大于等于列长度 = {*jsonLenGt*}  		>
 json属性长度大于等于列长度 = {*jsonLenGte*} 		>=
 //长度需要注意最好放在非空后面,同时自己要提防由于null引发的空指针异常,因为null.length是异常的
-实体类属性 = {*clzAttr*} 
+实体类属性 = {*clzAttr*} 示例:body.getXXX()多个值以,号隔开
 实体类属性等于null = {*clzPeqNull*}   	 ==null  多个值以||隔开
 实体类属性不等于null= {*clzPneqNull*}	 !=null
 实体类属性长度小于列长度 = {*clzLenLt*}		 .length() < number 
@@ -58,7 +61,6 @@ json属性长度大于等于列长度 = {*jsonLenGte*} 		>=
 获方附加内容地址名    =  {*bsInsertBatch*}
 
 //dao的地址
-
 获得数据总数地址名  =  {*daoBsGetCount*}
 获得查询数据地址名  =  {*daoBsSelectAll*}
 获得分页查询地址名  =  {*daoBsSelectAllByPage*}

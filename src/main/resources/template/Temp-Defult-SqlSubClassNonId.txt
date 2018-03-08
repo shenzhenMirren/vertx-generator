@@ -7,7 +7,7 @@ import {*AbstractSQLPackage*}.AbstractSQL;
 import {*AbstractSQLPackage*}.SqlPropertyValue;
 {*import*}
 
-public class {*sqlName*} extends AbstractSQL<JsonObject> {
+public class {*sqlName*} extends AbstractSQL<{*className*}> {
 	@Override
 	protected String tableName() {
 		return "{*tableName*}";
@@ -36,13 +36,13 @@ public class {*sqlName*} extends AbstractSQL<JsonObject> {
 	}
 
 	@Override
-	public SqlAndParams updateAllById(JsonObject obj) {
+	public SqlAndParams updateAllById({*className*} obj) {
 		// TODO 需要自己实现
 		return null;
 	}
 
 	@Override
-	public SqlAndParams updateNonEmptyById(JsonObject obj) {
+	public SqlAndParams updateNonEmptyById({*className*} obj) {
 		// TODO 需要自己实现
 		return null;
 	}
@@ -54,9 +54,9 @@ public class {*sqlName*} extends AbstractSQL<JsonObject> {
 	}
 
 	@Override
-	protected List<SqlPropertyValue<?>> propertyValue(JsonObject obj) {
+	protected List<SqlPropertyValue<?>> propertyValue({*className*} obj) {
 		List<SqlPropertyValue<?>> result = new ArrayList<>();
-		{*SqlPropertyValue*}
+		{*SqlPropertyValueByClz*}
 		return result;
 	}
 	

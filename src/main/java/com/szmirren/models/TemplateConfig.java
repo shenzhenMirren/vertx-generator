@@ -8,11 +8,11 @@ package com.szmirren.models;
  */
 public class TemplateConfig {
 	private String entityAddName;
-	private String daoName = "Temp-Default-Dao-v3_4.2.txt";
+	private String daoName = "Temp-Default-Dao.txt";
 	private String daoAddName = "Temp-Default-DaoAdd.txt";
 	private String bizName = "Temp-Default-Biz.txt";
 	private String bizAddName = "Temp-Default-BizAdd.txt";
-	private String webRouterName = "Temp-Default-WebRouter.txt";
+	private String webRouterName = "Temp-Default-ServiceRouter.txt";
 	private String webRouterAddName = "Temp-Default-WebRouterAdd.txt";
 	private String sqlName = "Temp-Defult-SqlSubClass.txt";
 	private String sqlNonIdName = "Temp-Defult-SqlSubClassNonId.txt";

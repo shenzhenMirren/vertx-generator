@@ -71,8 +71,7 @@ public class CreateFileUtil {
 		String packg = getPackageStr(config.getDaoPackage());
 		String className = attr.getEntityName();
 		String classNameFL = StrUtil.fristToLoCase(attr.getEntityName());
-		String impt = getImportStr(config.getSqlParamsPackage(), CommonName.SQL_AND_PARAMS.getValue());
-		impt += getImportStr(config.getAssistPackage(), CommonName.ASSIST.getValue());
+		String impt = getImportStr(config.getAssistPackage(), CommonName.ASSIST.getValue());
 		impt += getImportStr(config.getSqlPackage(), config.getSqlName());
 		String daoName = config.getDaoName();
 		String sqlName = config.getSqlName();
@@ -137,12 +136,17 @@ public class CreateFileUtil {
 		rep.add(StrUtil.asStrArray("{C}", className));
 		rep.add(StrUtil.asStrArray("{*sqlObjName*}", sqlObjName));
 		rep.add(StrUtil.asStrArray("{*package*}", packg));
-		rep.add(StrUtil.asStrArray("{*import*}", impt));
 		rep.add(StrUtil.asStrArray("{*daoName*}", daoName));
 		rep.add(StrUtil.asStrArray("{*sqlName*}", sqlName));
 		rep.add(StrUtil.asStrArray("{*className*}", className));
+		rep.add(StrUtil.asStrArray("{*JsonObject*}", "JsonObject"));
 		rep.add(StrUtil.asStrArray("{*classNameFL*}", classNameFL));
 		rep.add(StrUtil.asStrArray("{*//*}", notes));
+		// 添加实体类包名的包名
+		if (dao.indexOf("{*className*}") >= 0) {
+			impt += getImportStr(config.getEntityPackage(), config.getEntityName());
+		}
+		rep.add(StrUtil.asStrArray("{*import*}", impt));
 		String materi = StrUtil.replace(dao, rep);
 		boolean mode = attr.getConfig().isDelOldFile();
 		IoUtil.StrToFile(dir, fileName, materi, config.getCodeFormat(), mode);
@@ -164,6 +168,7 @@ public class CreateFileUtil {
 		Path dir = Paths.get(config.getProjectPath(), IoUtil.toURL(config.getBizPackage()));// 文件路径
 		String fileName = config.getBizName() + ".java";// 文件名称
 		String bizName = config.getBizName();
+		String daoName = config.getDaoName();
 		String packg = getPackageStr(config.getBizPackage());
 		String className = attr.getEntityName();
 		String classNameFL = StrUtil.fristToLoCase(attr.getEntityName());
@@ -215,7 +220,6 @@ public class CreateFileUtil {
 			bizAdd = "";
 		}
 		String biz = IoUtil.fileToStr(TEMPLATE_DIR + config.getTemplateConfig().getBizName());
-
 		List<String[]> rep = new ArrayList<>();
 		// 附加内容
 		rep.add(StrUtil.asStrArray("{*bizAdd*}", bizAdd));
@@ -279,12 +283,17 @@ public class CreateFileUtil {
 
 		// 装载通用替换属性
 		rep.add(StrUtil.asStrArray("{*package*}", packg));
-		rep.add(StrUtil.asStrArray("{*import*}", impt));
 		rep.add(StrUtil.asStrArray("{*bizName*}", bizName));
+		rep.add(StrUtil.asStrArray("{*daoName*}", daoName));
 		rep.add(StrUtil.asStrArray("{*className*}", className));
+		rep.add(StrUtil.asStrArray("{*JsonObject*}", "JsonObject"));
 		rep.add(StrUtil.asStrArray("{*classNameFL*}", classNameFL));
 		rep.add(StrUtil.asStrArray("{*//*}", notes));
-
+		// 添加dao的包名
+		if (biz.indexOf("{*daoName*}") >= 0) {
+			impt += getImportStr(config.getDaoPackage(), config.getDaoName());
+		}
+		rep.add(StrUtil.asStrArray("{*import*}", impt));
 		String materi = StrUtil.replace(biz, rep);
 		boolean mode = attr.getConfig().isDelOldFile();
 		IoUtil.StrToFile(dir, fileName, materi, config.getCodeFormat(), mode);
@@ -305,6 +314,9 @@ public class CreateFileUtil {
 		Path dir = Paths.get(config.getProjectPath(), IoUtil.toURL(config.getRouterPackage()));// 文件路径
 		String fileName = config.getRouterName() + ".java";// 文件名称
 		String routerName = config.getRouterName();
+		String daoName = config.getDaoName();
+		String bizName = config.getBizName();
+		String sqlName = config.getSqlName();
 		String packg = getPackageStr(config.getRouterPackage());
 		String className = attr.getEntityName();
 		String classNameFL = StrUtil.fristToLoCase(attr.getEntityName());
@@ -417,16 +429,59 @@ public class CreateFileUtil {
 		rep.add(StrUtil.asStrArray("{*daoBsInsertBatch*}", daoBsInsertBatch));
 		rep.add(StrUtil.asStrArray("{c}", StrUtil.fristToLoCase(className)));
 		rep.add(StrUtil.asStrArray("{C}", className));
+
+		// 装载非空与长度的配置属性
+		BizCondition condtion = getBizCondtion(config, attr);
+		rep.add(StrUtil.asStrArray("{*jsonPrimary*}", condtion.getJsonPrimary()));
+		rep.add(StrUtil.asStrArray("{*jsonPrimaryEqNull*}", condtion.getJsonPrimaryEqNull()));
+		rep.add(StrUtil.asStrArray("{*jsonPrimaryNeqNull*}", condtion.getJsonPrimaryNeqNull()));
+		rep.add(StrUtil.asStrArray("{*clzPrimary*}", condtion.getClzPrimary()));
+		rep.add(StrUtil.asStrArray("{*clzPrimaryEqNull*}", condtion.getClzPrimaryEqNull()));
+		rep.add(StrUtil.asStrArray("{*clzPrimaryNeqNull*}", condtion.getClzPrimaryNeqNull()));
+
+		rep.add(StrUtil.asStrArray("{*jsonAttr*}", condtion.getJsonAttr()));
+		rep.add(StrUtil.asStrArray("{*jsonPeqNull*}", condtion.getJsonPeqNull()));
+		rep.add(StrUtil.asStrArray("{*jsonPneqNull*}", condtion.getJsonPneqNull()));
+		rep.add(StrUtil.asStrArray("{*jsonLenLt*}", condtion.getJsonLenLt()));
+		rep.add(StrUtil.asStrArray("{*jsonLenLte*}", condtion.getJsonLenLte()));
+		rep.add(StrUtil.asStrArray("{*jsonLenGt*}", condtion.getJsonLenGt()));
+		rep.add(StrUtil.asStrArray("{*jsonLenGte*}", condtion.getJsonLenGte()));
+
+		rep.add(StrUtil.asStrArray("{*clzAttr*}", condtion.getClzAttr()));
+		rep.add(StrUtil.asStrArray("{*clzPeqNull*}", condtion.getClzPeqNull()));
+		rep.add(StrUtil.asStrArray("{*clzPneqNull*}", condtion.getClzPneqNull()));
+		rep.add(StrUtil.asStrArray("{*clzLenLt*}", condtion.getClzLenLt()));
+		rep.add(StrUtil.asStrArray("{*clzLenLte*}", condtion.getClzLenLte()));
+		rep.add(StrUtil.asStrArray("{*clzLenGt*}", condtion.getClzLenGt()));
+		rep.add(StrUtil.asStrArray("{*clzLenGte*}", condtion.getClzLenGte()));
 		// 装载通用替换属性
 		rep.add(StrUtil.asStrArray("{*package*}", packg));
-		rep.add(StrUtil.asStrArray("{*import*}", impt));
 		rep.add(StrUtil.asStrArray("{*routerName*}", routerName));
+		rep.add(StrUtil.asStrArray("{*daoName*}", daoName));
+		rep.add(StrUtil.asStrArray("{*bizName*}", bizName));
+		rep.add(StrUtil.asStrArray("{*sqlName*}", sqlName));
 		rep.add(StrUtil.asStrArray("{*className*}", className));
+		rep.add(StrUtil.asStrArray("{*JsonObject*}", "JsonObject"));
 		rep.add(StrUtil.asStrArray("{*classNameFL*}", classNameFL));
 		rep.add(StrUtil.asStrArray("{*//*}", notes));
 		rep.add(StrUtil.asStrArray("{c}", StrUtil.fristToLoCase(className)));
 		rep.add(StrUtil.asStrArray("{C}", className));
-
+		// 添加dao的包名
+		if (router.indexOf("{*daoName*}") >= 0) {
+			impt += getImportStr(config.getDaoPackage(), config.getDaoName());
+		}
+		// 添加biz的包名
+		if (router.indexOf("{*bizName*}") >= 0) {
+			impt += getImportStr(config.getBizPackage(), config.getBizName());
+		}
+		// 添加sql的包名
+		if (router.indexOf("{*sqlName*}") >= 0) {
+			impt += getImportStr(config.getSqlPackage(), config.getSqlName());
+		}
+		if (router.indexOf("SqlAssist") >= 0) {
+			impt += getImportStr(config.getAssistPackage(), CommonName.ASSIST.getValue());
+		}
+		rep.add(StrUtil.asStrArray("{*import*}", impt));
 		String materi = StrUtil.replace(router, rep);
 		boolean mode = attr.getConfig().isDelOldFile();
 		IoUtil.StrToFile(dir, fileName, materi, config.getCodeFormat(), mode);
@@ -448,15 +503,14 @@ public class CreateFileUtil {
 		String tableName = attr.getTableName();
 		String primaryKey = attr.getPrimaryKey();
 		String columns = getColumnsStr(attr);
-		String impt;
+		String impt = "";
 		String materiRUl;
 
 		String className = attr.getEntityName();
 		String classNameFL = StrUtil.fristToLoCase(attr.getEntityName());
 		// String jsonClassName = CommonName.JSON_OBJECT_NAME.getValue();
-		String propertyValue;
-		impt = getImportStr(CommonName.JSON_OBJECT_PACKAGE.getValue(), CommonName.JSON_OBJECT_NAME.getValue());
-		propertyValue = getPropertyValueStrByJson(attr);
+		String propertyValue = getPropertyValueStrByJson(attr);
+		String propertyValueByClz = getPropertyValueStr(attr);
 		String batchSQL = getAddSQL(config, attr);
 		if (!StrUtil.isNullOrEmpty(batchSQL)) {
 			batchSQL = batchSQL.replace("{c}", StrUtil.fristToLoCase(className));
@@ -478,15 +532,27 @@ public class CreateFileUtil {
 		rep.add(StrUtil.asStrArray("{*AbstractSQLPackage*}", abstractSqlPackage));
 		rep.add(StrUtil.asStrArray("{*SqlAndParamsPackage*}", sqlParamsPackage));
 		rep.add(StrUtil.asStrArray("{*sqlName*}", sqlName));
-		rep.add(StrUtil.asStrArray("{*import*}", impt));
 		rep.add(StrUtil.asStrArray("{*className*}", className));
+		rep.add(StrUtil.asStrArray("{*JsonObject*}", "JsonObject"));
 		rep.add(StrUtil.asStrArray("{*classNameFL*}", classNameFL));
 		rep.add(StrUtil.asStrArray("{*tableName*}", tableName));
 		rep.add(StrUtil.asStrArray("{*primaryId*}", primaryKey));
 		rep.add(StrUtil.asStrArray("{*columns*}", columns));
 		rep.add(StrUtil.asStrArray("{*SqlPropertyValue*}", propertyValue));
+		rep.add(StrUtil.asStrArray("{*SqlPropertyValueByClz*}", propertyValueByClz));
 		rep.add(StrUtil.asStrArray("{c}", StrUtil.fristToLoCase(className)));
 		rep.add(StrUtil.asStrArray("{C}", className));
+		// 导入实体类包名
+		if (temp.indexOf("{*className*}") >= 0 && config.isCreateEntity()) {
+			impt += getImportStr(config.getEntityPackage(), config.getEntityName());
+		}
+		// 导入JsonObject包名
+		if (temp.indexOf("JsonObject") >= 0) {
+			impt = getImportStr(CommonName.JSON_OBJECT_PACKAGE.getValue(), CommonName.JSON_OBJECT_NAME.getValue());
+		}
+
+		rep.add(StrUtil.asStrArray("{*import*}", impt));
+
 		String materi = StrUtil.replace(temp, rep);
 		Path dir = Paths.get(config.getProjectPath(), IoUtil.toURL(packg));// 文件路径
 		String fileName = sqlName + ".java";// 文件名称
@@ -513,8 +579,7 @@ public class CreateFileUtil {
 		}
 		String materiRUl;
 		if (config.getTemplateConfig().getAbstractSQLName().contains("{*DBType*}")) {
-			String abstractSQLName = config.getTemplateConfig().getAbstractSQLName().replace("{*DBType*}",
-					config.getDbType());
+			String abstractSQLName = config.getTemplateConfig().getAbstractSQLName().replace("{*DBType*}", config.getDbType());
 			materiRUl = TEMPLATE_DIR + abstractSQLName;
 		} else {
 			materiRUl = TEMPLATE_DIR + config.getTemplateConfig().getAbstractSQLName();
@@ -527,12 +592,11 @@ public class CreateFileUtil {
 			impt.append(MessageFormat.format("import {0}.{1};\r\n", assistPackage, CommonName.ASSIST.getValue()));
 		}
 		if (!packg.equals(sqlParamsPackage)) {
-			impt.append(MessageFormat.format("import {0}.{1};\r\n", sqlParamsPackage,
-					CommonName.SQL_AND_PARAMS.getValue()));
+			impt.append(MessageFormat.format("import {0}.{1};\r\n", sqlParamsPackage, CommonName.SQL_AND_PARAMS.getValue()));
 		}
 		String sql = IoUtil.fileToStr(materiRUl);
-		String materi = sql.replace("{*package*}", getPackageStr(packg)).replace("{*AssistPackage*}", assistPackage)
-				.replace("{*import*}", impt.toString());
+		String materi = sql.replace("{*package*}", getPackageStr(packg)).replace("{*AssistPackage*}", assistPackage).replace("{*import*}",
+				impt.toString());
 		IoUtil.StrToFile(dir, fileName, materi, config.getCodeFormat());
 		createSqlPropertyValue(config);
 	}
@@ -664,8 +728,7 @@ public class CreateFileUtil {
 				continue;
 			}
 			if (result == null) {
-				result = new StringBuffer(
-						MessageFormat.format(" {0} AS {1} ", cvf.getConlumn(), cvf.getPropertyName()));
+				result = new StringBuffer(MessageFormat.format(" {0} AS {1} ", cvf.getConlumn(), cvf.getPropertyName()));
 			} else {
 				result.append(MessageFormat.format(", {0} AS {1} ", cvf.getConlumn(), cvf.getPropertyName()));
 			}
@@ -680,7 +743,6 @@ public class CreateFileUtil {
 	 * @param attr
 	 * @return
 	 */
-	@SuppressWarnings("unused")
 	private static String getPropertyValueStr(EntityAttribute attr) {
 		StringBuffer result = null;
 		List<AttributeCVF> cvfs = new ArrayList<>(attr.getAttrs());
@@ -691,13 +753,11 @@ public class CreateFileUtil {
 				continue;
 			}
 			if (result == null) {
-				result = new StringBuffer(
-						MessageFormat.format("result.add(new SqlPropertyValue<>(\"{0}\", obj.get{1}())); ",
-								cvf.getConlumn(), StrUtil.fristToUpCase(cvf.getPropertyName())));
+				result = new StringBuffer(MessageFormat.format("result.add(new SqlPropertyValue<>(\"{0}\", obj.get{1}())); ", cvf.getConlumn(),
+						StrUtil.fristToUpCase(cvf.getPropertyName())));
 			} else {
-				result.append(
-						MessageFormat.format("\r\n        result.add(new SqlPropertyValue<>(\"{0}\", obj.get{1}())); ",
-								cvf.getConlumn(), StrUtil.fristToUpCase(cvf.getPropertyName())));
+				result.append(MessageFormat.format("\r\n        result.add(new SqlPropertyValue<>(\"{0}\", obj.get{1}())); ", cvf.getConlumn(),
+						StrUtil.fristToUpCase(cvf.getPropertyName())));
 			}
 		}
 		return result == null ? "" : result.toString();
@@ -721,11 +781,9 @@ public class CreateFileUtil {
 			String temp = getJsonGetType("obj", cvf.getJavaTypeValue());
 			String value = MessageFormat.format(temp, cvf.getPropertyName());
 			if (result == null) {
-				result = new StringBuffer(MessageFormat.format("result.add(new SqlPropertyValue<>(\"{0}\", {1})); ",
-						cvf.getConlumn(), value));
+				result = new StringBuffer(MessageFormat.format("result.add(new SqlPropertyValue<>(\"{0}\", {1})); ", cvf.getConlumn(), value));
 			} else {
-				result.append(MessageFormat.format("\r\n        result.add(new SqlPropertyValue<>(\"{0}\", {1})); ",
-						cvf.getConlumn(), value));
+				result.append(MessageFormat.format("\r\n        result.add(new SqlPropertyValue<>(\"{0}\", {1})); ", cvf.getConlumn(), value));
 			}
 		}
 		return result == null ? "" : result.toString();
@@ -736,9 +794,9 @@ public class CreateFileUtil {
 	 * 返回结果 prefix.getType(\"{0}\")
 	 * 
 	 * @param prefix
-	 *            前缀
+	 *          前缀
 	 * @param type
-	 *            原类型
+	 *          原类型
 	 * @return
 	 */
 	private static String getJsonGetType(String prefix, String type) {
@@ -768,13 +826,13 @@ public class CreateFileUtil {
 	 * 返回结果 prefix.getType(\"{0}\")
 	 * 
 	 * @param prefix
-	 *            前缀
+	 *          前缀
 	 * @param type
-	 *            原类型
+	 *          原类型
 	 * @return
 	 */
 	private static String getClzGet(String prefix, String type) {
-		return prefix + ".get" + StrUtil.fristToUpCase(type);
+		return prefix + ".get" + StrUtil.fristToUpCase(type) + "()";
 	}
 
 	/**
@@ -817,15 +875,14 @@ public class CreateFileUtil {
 					String temp = getJsonGetType("obj", cvf.getJavaTypeValue());
 					String value = MessageFormat.format(temp, cvf.getPropertyName());
 					params.append(MessageFormat.format("param.add({0});", value));
-					paramsIfNull.append(MessageFormat
-							.format("if ({0} != null) '{'param.add({0});} else '{'param.addNull();}", value));
+					paramsIfNull.append(MessageFormat.format("if ({0} != null) '{'param.add({0});} else '{'param.addNull();}", value));
 					fristParam = false;
 				} else {
 					String temp = getJsonGetType("obj", cvf.getJavaTypeValue());
 					String value = MessageFormat.format(temp, cvf.getPropertyName());
 					params.append(MessageFormat.format("\r\n            param.add({0});", value));
-					paramsIfNull.append(MessageFormat.format(
-							"\r\n            if ({0} != null) '{'param.add({0});} else '{'param.addNull();}", value));
+					paramsIfNull
+							.append(MessageFormat.format("\r\n            if ({0} != null) '{'param.add({0});} else '{'param.addNull();}", value));
 				}
 				//
 				// if (config.isCreateEntity()) {
@@ -1013,9 +1070,9 @@ public class CreateFileUtil {
 				}
 			}
 		}
-		BizCondition bizCondition = new BizCondition(jsonPrimary, jsonPrimaryEqNull, jsonPrimaryNeqNull, clzPrimary,
-				clzPrimaryEqNull, clzPrimaryNeqNull, jsonAttr, jsonPeqNull, jsonPneqNull, jsonLenLt, jsonLenLte,
-				jsonLenGt, jsonLenGte, clzAttr, clzPeqNull, clzPneqNull, clzLenLt, clzLenLte, clzLenGt, clzLenGte);
+		BizCondition bizCondition = new BizCondition(jsonPrimary, jsonPrimaryEqNull, jsonPrimaryNeqNull, clzPrimary, clzPrimaryEqNull,
+				clzPrimaryNeqNull, jsonAttr, jsonPeqNull, jsonPneqNull, jsonLenLt, jsonLenLte, jsonLenGt, jsonLenGte, clzAttr, clzPeqNull,
+				clzPneqNull, clzLenLt, clzLenLte, clzLenGt, clzLenGte);
 		return bizCondition;
 	}
 

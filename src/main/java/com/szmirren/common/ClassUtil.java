@@ -241,7 +241,7 @@ public class ClassUtil {
 	private static String getToJson() {
 		StringBuffer result = new StringBuffer(
 				"    /**\r\n     * 将本类转换为Json字符串 \r\n     * @return\r\n     */\r\n   public String toJsonStr(){\r\n");
-		result.append("        return Json.encode(this);\r\n    }\r\n\r\n");
+		result.append("        return toJson().toString();\r\n    }\r\n\r\n");
 		return result.toString();
 	}
 

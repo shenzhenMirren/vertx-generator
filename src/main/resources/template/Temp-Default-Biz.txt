@@ -35,7 +35,7 @@ public class {*bizName*} extends AbstractVerticle {
 		// SqlAssist().setConditions(SqlAssist.andEq("type", type));
 		// String message = assist.toJsonStr();
 		// send中的null改为message
-		vertx.eventBus().<Long>send("{*daoBsGetCount*}", null, res -> {
+		vertx.eventBus().<Long>send({*daoName*}.EVENT_BUS_ADDR_GET_COUNT, null, res -> {
 			if (res.succeeded()) {
 				Long result = res.result().body();
 				msg.reply(result);
@@ -59,7 +59,7 @@ public class {*bizName*} extends AbstractVerticle {
 		// SqlAssist.andLt("id",10));
 		// String message = assist.toJsonStr();
 		// send中的null改为message
-		vertx.eventBus().<JsonArray>send("{*daoBsSelectAll*}", null, res -> {
+		vertx.eventBus().<JsonArray>send({*daoName*}.EVENT_BUS_ADDR_FIND, null, res -> {
 			if (res.succeeded()) {
 				JsonArray result = res.result().body();
 				msg.reply(result);
@@ -82,7 +82,7 @@ public class {*bizName*} extends AbstractVerticle {
 		// 你还可以继续设置条件,排序等
 		String message = assist.toJsonStr();
 		// send中的null改为message
-		vertx.eventBus().<JsonObject>send("{*daoBsSelectAllByPage*}", message, res -> {
+		vertx.eventBus().<JsonObject>send({*daoName*}.EVENT_BUS_ADDR_FIND_BY_PAGE, message, res -> {
 			if (res.succeeded()) {
 				JsonObject result = res.result().body();
 				msg.reply(result);
@@ -100,7 +100,7 @@ public class {*bizName*} extends AbstractVerticle {
 	 */
 	public void {*funSelectObj*}(Message<JsonObject> msg) {
 		// TODO 你可以在这里做点事情比如,判断字段是否为空
-		vertx.eventBus().<JsonObject>send("{*daoBsSelectObj*}", null, res -> {
+		vertx.eventBus().<JsonObject>send({*daoName*}.EVENT_BUS_ADDR_GET_BY_OBJ, null, res -> {
 			if (res.succeeded()) {
 				JsonObject result = res.result().body();
 				msg.reply(result);
@@ -120,7 +120,7 @@ public class {*bizName*} extends AbstractVerticle {
 		// TODO 你可以在这里做点事情比如,判断字段是否为空
 		// if (msg.body() == null || msg.body().getString("id") == null)
 		// {//做点事情因为dao不能接受通过id查询却不传id值}
-		vertx.eventBus().<JsonObject>send("{*daoBsSelectId*}", null, res -> {
+		vertx.eventBus().<JsonObject>send({*daoName*}.EVENT_BUS_ADDR_GET_BY_ID, null, res -> {
 			if (res.succeeded()) {
 				JsonObject result = res.result().body();
 				msg.reply(result);
@@ -146,7 +146,7 @@ public class {*bizName*} extends AbstractVerticle {
 		} else if ({*jsonLenGt*}) {
 			// 做点事情
 		} else {
-			vertx.eventBus().<Integer>send("{*daoBsInsert*}", msg.body(), res -> {
+			vertx.eventBus().<Integer>send({*daoName*}.EVENT_BUS_ADDR_INSERT, msg.body(), res -> {
 				if (res.succeeded()) {
 					Integer result = res.result().body();
 					msg.reply(result);
@@ -171,7 +171,7 @@ public class {*bizName*} extends AbstractVerticle {
 		} else if ({*jsonPeqNull*}) {
 			// 做点事情
 		} else {
-			vertx.eventBus().<Integer>send("{*daoBsUpdate*}", msg.body(), res -> {
+			vertx.eventBus().<Integer>send({*daoName*}.EVENT_BUS_ADDR_UPDATE, msg.body(), res -> {
 				if (res.succeeded()) {
 					Integer result = res.result().body();
 					msg.reply(result);
@@ -196,7 +196,7 @@ public class {*bizName*} extends AbstractVerticle {
 		} else if (body.getString("") == null) {
 			// 做点事情
 		} else {
-			vertx.eventBus().<Integer>send("{*daoBsDelete*}", msg.body(), res -> {
+			vertx.eventBus().<Integer>send({*daoName*}.EVENT_BUS_ADDR_DALETE, msg.body(), res -> {
 				if (res.succeeded()) {
 					Integer result = res.result().body();
 					msg.reply(result);

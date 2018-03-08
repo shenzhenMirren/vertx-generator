@@ -1,6 +1,7 @@
 可以识别占位符
 
 实体类名字  = {*className*}
+JsonObject名字 = {*JsonObject*}
 实体类名字首字母小写  = {*classNameFL*}
 {*//*} = 如果创建附加内容,则将该注释删除,反则保留
 

@@ -3,12 +3,14 @@
 import java.util.ArrayList;
 import java.util.List;
 
-import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 /**
- * AbstractSQL用于生成SQL语句的工具
+ * {@link AbstractSQL} 的查询工具类
  * 
- * @author github.shenzhenMirren
+ * @author <a href="http://szmirren.com">Mirren</a>
+ *
  */
 public class SqlAssist {
 	// 去重
@@ -23,16 +25,18 @@ public class SqlAssist {
 	private String resultColumn;
 	// 条件集
 	private List<SqlWhereCondition<?>> condition = null;
+	// 自定义属性
+	private Object custom;
 
 	public SqlAssist() {
 		super();
 	}
 
 	/**
-	 * 该构造方法用于使用Assist的静态条件方法,动态添加条件
+	 * 该构造方法用于使用SqlAssist的静态条件方法,动态添加条件
 	 * 
 	 * @param require
-	 *            示例:Assist.lt("A.ID",10)...
+	 *          示例:查询小于使用 SqlAssist.andLt("A.ID",10)... {@link #andLt(String, Object)}
 	 */
 	public SqlAssist(SqlWhereCondition<?>... require) {
 		this.setConditions(require);
@@ -44,14 +48,76 @@ public class SqlAssist {
 	 * @return
 	 */
 	public String toJsonStr() {
-		return Json.encode(this);
+		return toJson().toString();
+	}
+	/**
+	 * 将当前对象装换为JsonObject
+	 * 
+	 * @return
+	 * @since 1.0.2
+	 */
+	public JsonObject toJson() {
+		JsonObject json = new JsonObject();
+		if (distinct != null) {
+			json.put("distinct", distinct);
+		}
+		if (order != null) {
+			json.put("order", order);
+		}
+		if (startRow != null) {
+			json.put("startRow", startRow);
+		}
+		if (rowSize != null) {
+			json.put("rowSize", rowSize);
+		}
+		if (resultColumn != null) {
+			json.put("resultColumn", resultColumn);
+		}
+		if (custom != null) {
+			json.put("custom", custom);
+		}
+		if (condition != null) {
+			JsonArray array = new JsonArray();
+			condition.forEach(va -> {
+				array.add(va.toJson());
+			});
+			json.put("condition", array);
+		}
+		return json;
+	}
+	/**
+	 * 将JsonObject对象装换为SqlAssist
+	 * 
+	 * @param obj
+	 * @return
+	 * @since 1.0.2
+	 */
+	public static SqlAssist fromJson(JsonObject obj) {
+		if (obj == null || obj.isEmpty()) {
+			return null;
+		}
+		SqlAssist assist = new SqlAssist();
+		assist.setStartRow(obj.getInteger("startRow"));
+		assist.setRowSize(obj.getInteger("rowSize"));
+		assist.setDistinct(obj.getString("distinct"));
+		assist.setOrders(obj.getString("order"));
+		assist.setResultColumn(obj.getString("resultColumn"));
+		assist.setCustom(obj.getValue("custom"));
+		if (obj.getValue("condition") instanceof JsonArray) {
+			List<SqlWhereCondition<?>> list = new ArrayList<>();
+			obj.getJsonArray("condition").forEach(va -> {
+				list.add(SqlWhereCondition.fromJson((JsonObject) va));
+			});
+			assist.setCondition(list);
+		}
+		return assist;
 	}
 
 	/**
-	 * 添加查询条件,参数为Assist的内部类whereRequire,推荐使用Assist的静态条件方法添加条件;
+	 * 添加查询条件,参数为{@ SqlWhereCondition},推荐使用Assist的静态条件方法添加条件;
 	 * 
 	 * @param require
-	 *            示例:Assist.and_lt("id",10),...
+	 *          示例:查询小于使用  SqlAssist.andLt("A.ID",10)... {@link #andLt(String, Object)}
 	 */
 	public SqlAssist setConditions(SqlWhereCondition<?>... require) {
 		if (this.condition == null) {
@@ -63,6 +129,17 @@ public class SqlAssist {
 			}
 			this.condition.add(require[i]);
 		}
+		return this;
+	}
+	/**
+	 * 添加查询条件,该方法一般用于初始化,因为会将现有的条件集清空,既this.condition=conditions
+	 * 
+	 * @param conditions
+	 * @return
+	 * @since 1.0.2
+	 */
+	private SqlAssist setCondition(List<SqlWhereCondition<?>> conditions) {
+		this.condition = conditions;
 		return this;
 	}
 
@@ -219,14 +296,12 @@ public class SqlAssist {
 	public static <T> SqlWhereCondition<T> orLike(String column, T req) {
 		return new SqlWhereCondition<T>("or " + column + " like ? ", req);
 	}
-
 	/**
 	 * 自定义查询条件 :<br>
-	 * 查询示例Assist.customRequire("[and/or] id in(?,?,?)",1,2,3);
+	 * 查询示例Assist.customRequire("[and/or] id in(?,?,?)",1,2,3);<br>
 	 * 
 	 * @param prefix
 	 * @param value
-	 * @param suffix
 	 * @return
 	 */
 	public static SqlWhereCondition<?> customCondition(String prefix, Object... value) {
@@ -238,9 +313,9 @@ public class SqlAssist {
 	 * ;如果表中存在相同列名使用表名.列名,如果不存在相同列名可以直接列名<br>
 	 * 
 	 * @param column
-	 *            列名
+	 *          列名
 	 * @param mode
-	 *            排序类型,true=asc,false=desc
+	 *          排序类型,true=asc,false=desc
 	 * @return
 	 */
 	public static String order(String column, boolean mode) {
@@ -252,11 +327,12 @@ public class SqlAssist {
 	}
 
 	/**
-	 * 设置排序,通过Assist.order(列名,排序方式)<br>
-	 * 示例:assist.setOrder(Assist.order("id",true))//将id正序排序
+	 * * 设置排序,通过SqlAssist.order(列名,排序方式)<br>
+	 * 示例:assist.setOrder(SqlAssist.order("id",true))//将id正序排序
 	 * 
-	 * @param column
-	 * @param mode
+	 * @param order
+	 *          {@link #order(String column, boolean mode)}
+	 * @return
 	 */
 	public SqlAssist setOrders(String... order) {
 		if (order == null || order.length == 0) {
@@ -275,6 +351,25 @@ public class SqlAssist {
 	}
 
 	/**
+	 * 设置一个编辑好的order,该方法一般用于初始化,因为会将现有的order清除,既order=参数order
+	 * 
+	 * @param order
+	 * @return
+	 * @since 1.0.2
+	 */
+	private SqlAssist setOrders(String order) {
+		this.order = order;
+		return this;
+	}
+	/**
+	 * 获得排序
+	 * 
+	 * @return
+	 */
+	public String getOrder() {
+		return order;
+	}
+	/**
 	 * 获得是否去重
 	 * 
 	 * @return
@@ -284,7 +379,7 @@ public class SqlAssist {
 	}
 
 	/**
-	 * 设置是否去重,true去除
+	 * 设置是否去重,true去除,false无效
 	 * 
 	 * @param distinct
 	 */
@@ -295,14 +390,16 @@ public class SqlAssist {
 		}
 		return this;
 	}
-
 	/**
-	 * 获得排序
+	 * 设置一个现有的去除方案,该方法一般用于初始化,因为会将现有的distinct清除,既distinct=传入的distinct
 	 * 
+	 * @param distinct
 	 * @return
+	 * @since 1.0.2
 	 */
-	public String getOrder() {
-		return order;
+	private SqlAssist setDistinct(String distinct) {
+		this.distinct = distinct;
+		return this;
 	}
 
 	/**
@@ -353,8 +450,7 @@ public class SqlAssist {
 	}
 
 	/**
-	 * 设置返回指定列多个列以,逗号隔开;需要特别注意的是返回列需要起别名,别名以mapper里面的resultMap的column为准;
-	 * 一般是类名加上属性的顺序号,
+	 * 设置返回指定列多个列以,逗号隔开;
 	 * 
 	 * @return
 	 */
@@ -372,10 +468,29 @@ public class SqlAssist {
 		return condition;
 	}
 
+	/**
+	 * 获得自定义属性
+	 * 
+	 * @return
+	 * @since 1.0.2
+	 */
+	public Object getCustom() {
+		return custom;
+	}
+	/**
+	 * 设置自定义属性
+	 * 
+	 * @param custom
+	 * @since 1.0.2
+	 */
+	public void setCustom(Object custom) {
+		this.custom = custom;
+	}
+
 	@Override
 	public String toString() {
-		return "SqlAssist [distinct=" + distinct + ", order=" + order + ", startRow=" + startRow + ", rowSize="
-				+ rowSize + ", resultColumn=" + resultColumn + ", condition=" + condition + "]";
+		return "SqlAssist [distinct=" + distinct + ", order=" + order + ", startRow=" + startRow + ", rowSize=" + rowSize + ", resultColumn=" + resultColumn
+				+ ", condition=" + condition + ", custom=" + custom + "]";
 	}
 
 }
