@@ -37,7 +37,19 @@ public class DBUtil {
 		DBType dbType = DBType.valueOf(config.getDbType());
 		Class.forName(dbType.getDriverClass());
 		String url = getConnectionURL(config);
-		return DriverManager.getConnection(url, config.getUserName(), config.getUserPwd());
+		if (dbType == DBType.Oracle) {
+			Connection connection;
+			try {
+				connection = DriverManager.getConnection(url, config.getUserName(), config.getUserPwd());
+			} catch (Exception e) {
+				String oracle = String.format(DBType.OracleServiceName.getConnectionUrlPattern(), config.getConnURL(), config.getListenPort(),
+						config.getDbName());
+				connection = DriverManager.getConnection(oracle, config.getUserName(), config.getUserPwd());
+			}
+			return connection;
+		} else {
+			return DriverManager.getConnection(url, config.getUserName(), config.getUserPwd());
+		}
 	}
 
 	/**
@@ -49,8 +61,8 @@ public class DBUtil {
 	 */
 	public static String getConnectionURL(DatabaseConfig dbConfig) throws ClassNotFoundException {
 		DBType dbType = DBType.valueOf(dbConfig.getDbType());
-		String connectionRUL = String.format(dbType.getConnectionUrlPattern(), dbConfig.getConnURL(),
-				dbConfig.getListenPort(), dbConfig.getDbName(), dbConfig.getEncoding());
+		String connectionRUL = String.format(dbType.getConnectionUrlPattern(), dbConfig.getConnURL(), dbConfig.getListenPort(),
+				dbConfig.getDbName(), dbConfig.getEncoding());
 		return connectionRUL;
 	}
 
@@ -76,7 +88,7 @@ public class DBUtil {
 		} else {
 			// 如果非sqlserver类型的数据库通过JDBC获得所有表跟视图
 			DatabaseMetaData md = conn.getMetaData();
-			String[] types = { "TABLE", "VIEW" };
+			String[] types = {"TABLE", "VIEW"};
 			if (config.getDbType().equalsIgnoreCase(DBTypeName.POSTGRE_SQL.getValue())) {
 				rs = md.getTables(null, null, null, types);
 			} else {
